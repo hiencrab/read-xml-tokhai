@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="'Tờ khai ' + ${declaration.declarationNo}">Tờ khai</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+<header><h1><a th:href="@{/}">Tờ khai hải quan XML</a></h1></header>
+<main>
+    <p><a th:href="@{/}">← Quay lại danh sách</a></p>
+
+    <div class="msg msg-warn" th:if="${declaration.active != null and !declaration.active}">
+        Bản này đã được thay bằng một lần import mới hơn của cùng số tờ khai.
+    </div>
+
+    <section class="card">
+        <h2 th:text="'Tờ khai ' + ${declaration.declarationNo}">Tờ khai</h2>
+        <dl class="kv">
+            <dt>Loại hình</dt><dd th:text="${declaration.declarationKindCode}"></dd>
+            <dt>Nhánh</dt>
+            <dd th:text="${declaration.branchNumberOfDividedDeclaration != null and !#strings.isEmpty(declaration.branchNumberOfDividedDeclaration)}
+                    ? ${declaration.branchNumberOfDividedDeclaration + '/' + declaration.numberOfDivisionsOfDividedDeclaration
+                        + ' (tờ khai đầu: ' + declaration.firstDeclarationNo + ')'} : '-'"></dd>
+            <dt>Người xuất khẩu</dt><dd th:text="${declaration.exporterName}"></dd>
+            <dt>Người nhận</dt><dd th:text="${declaration.consigneeName}"></dd>
+            <dt>Số hóa đơn</dt><dd th:text="${declaration.invoiceNo}"></dd>
+            <dt>Ngày hóa đơn</dt>
+            <dd th:text="${declaration.invoiceDate != null} ? ${#temporals.format(declaration.invoiceDate, 'dd/MM/yyyy')} : ''"></dd>
+            <dt>Tổng trị giá HĐ</dt>
+            <dd th:text="${(declaration.totalInvoicePrice ?: '') + ' ' + (declaration.invoiceCurrencyCode ?: '')}"></dd>
+            <dt>Ghi chú</dt><dd th:text="${declaration.notes}"></dd>
+            <th:block th:if="${header != null}">
+                <dt>Phần mềm / DB version</dt><dd th:text="${(header.app ?: '') + ' / ' + (header.dbVersion ?: '')}"></dd>
+                <dt>Ngày xuất file</dt>
+                <dd th:text="${header.date != null} ? ${#temporals.format(header.date, 'dd/MM/yyyy')} : ''"></dd>
+            </th:block>
+        </dl>
+    </section>
+
+    <p class="summary"><b th:text="${items.size()}">0</b> dòng hàng</p>
+    <div class="table-wrap card" style="padding:0">
+        <table>
+            <thead>
+            <tr>
+                <th>STT</th>
+                <th>Mã HS</th>
+                <th>Mô tả hàng hóa</th>
+                <th>Số lượng</th>
+                <th>Đơn giá HĐ</th>
+                <th>Trị giá HĐ</th>
+                <th>Trị giá tính thuế</th>
+                <th>Thuế XK</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${items}">
+                <td th:text="${item.fieldNo}"></td>
+                <td class="nowrap" th:text="${item.hsCode}"></td>
+                <td th:text="${item.itemName}"></td>
+                <td class="num" th:text="${(item.quantity1 ?: '') + ' ' + (item.quantityUnitCode ?: '')}"></td>
+                <td class="num" th:text="${item.invoiceUnitPrice}"></td>
+                <td class="num" th:text="${(item.invoiceValue ?: '') + ' ' + (item.unitPriceCurrencyCode ?: '')}"></td>
+                <td class="num" th:text="${item.taxValueM}"></td>
+                <td class="num" th:text="${item.exportTaxAmount}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <section class="card">
+        <details>
+            <summary>Toàn bộ thông tin tờ khai (<span th:text="${fields.size()}">0</span> trường có dữ liệu)</summary>
+            <dl class="kv" style="margin-top:12px">
+                <th:block th:each="e : ${fields}">
+                    <dt th:text="${e.key}"></dt>
+                    <dd th:text="${e.value}"></dd>
+                </th:block>
+            </dl>
+        </details>
+    </section>
+</main>
+</body>
+</html>

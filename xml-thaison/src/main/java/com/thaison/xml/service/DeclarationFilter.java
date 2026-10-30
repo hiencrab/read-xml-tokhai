@@ -1,0 +1,22 @@
+package com.thaison.xml.service;
+
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDate;
+
+@Getter
+@Setter
+public class DeclarationFilter {
+
+    private String declarationNo;
+
+    private String invoiceNo;
+
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate fromDate;
+
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate toDate;
+}

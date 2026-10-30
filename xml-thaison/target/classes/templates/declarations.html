@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Tờ khai hải quan</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+<header><h1><a th:href="@{/}">Tờ khai hải quan XML</a></h1></header>
+<main>
+
+    <div th:if="${importResult != null}">
+        <div class="msg msg-ok" th:if="${!importResult.imported.isEmpty()}">
+            Đã import <b th:text="${importResult.imported.size()}">0</b> file:
+            <ul><li th:each="line : ${importResult.imported}" th:text="${line}"></li></ul>
+        </div>
+        <div class="msg msg-err" th:if="${!importResult.errors.isEmpty()}">
+            Lỗi:
+            <ul><li th:each="line : ${importResult.errors}" th:text="${line}"></li></ul>
+        </div>
+    </div>
+
+    <section class="card">
+        <h2>Import file XML</h2>
+        <form class="inline" method="post" th:action="@{/upload}" enctype="multipart/form-data">
+            <input type="file" name="files" accept=".xml" multiple required>
+            <button type="submit">Import</button>
+        </form>
+        <p class="summary" style="margin-top:10px">
+            Có thể chọn nhiều file. Nếu số tờ khai đã có, bản cũ sẽ được thay bằng bản mới.
+        </p>
+    </section>
+
+    <section class="card">
+        <h2>Tìm kiếm</h2>
+        <form class="inline" method="get" th:action="@{/}" th:object="${filter}">
+            <label>Số tờ khai <input type="text" th:field="*{declarationNo}"></label>
+            <label>Số hóa đơn <input type="text" th:field="*{invoiceNo}"></label>
+            <label>Ngày hóa đơn từ <input type="date" th:field="*{fromDate}"></label>
+            <label>đến <input type="date" th:field="*{toDate}"></label>
+            <button type="submit">Lọc</button>
+            <a class="btn btn-secondary" th:href="@{/}">Xóa lọc</a>
+            <button type="submit" class="btn-excel" th:formaction="@{/export}">Xuất Excel</button>
+        </form>
+    </section>
+
+    <p class="summary">
+        <b th:text="${rows.size()}">0</b> tờ khai, <b th:text="${totalItems}">0</b> dòng hàng
+    </p>
+    <div class="table-wrap card" style="padding:0">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Số tờ khai</th>
+                <th>Nhánh</th>
+                <th>Loại hình</th>
+                <th>Số hóa đơn</th>
+                <th>Ngày hóa đơn</th>
+                <th>Người nhận</th>
+                <th>Tổng trị giá HĐ</th>
+                <th>Dòng hàng</th>
+                <th>Ngày import</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${rows.isEmpty()}"><td colspan="10" class="empty">Không có tờ khai nào.</td></tr>
+            <tr th:each="row : ${rows}" th:with="d=${row.declaration}">
+                <td th:text="${d.id}"></td>
+                <td class="nowrap"><a th:href="@{/declarations/{id}(id=${d.id})}" th:text="${d.declarationNo}"></a></td>
+                <td class="nowrap" th:text="${d.branchNumberOfDividedDeclaration != null and !#strings.isEmpty(d.branchNumberOfDividedDeclaration)}
+                        ? ${d.branchNumberOfDividedDeclaration + '/' + d.numberOfDivisionsOfDividedDeclaration} : ''"></td>
+                <td th:text="${d.declarationKindCode}"></td>
+                <td th:text="${d.invoiceNo}"></td>
+                <td class="nowrap" th:text="${d.invoiceDate != null} ? ${#temporals.format(d.invoiceDate, 'dd/MM/yyyy')} : ''"></td>
+                <td th:text="${d.consigneeName}"></td>
+                <td class="num" th:text="${(d.totalInvoicePrice ?: '') + ' ' + (d.invoiceCurrencyCode ?: '')}"></td>
+                <td class="num" th:text="${row.itemCount}"></td>
+                <td class="nowrap" th:text="${d.createdDate != null} ? ${#temporals.format(d.createdDate, 'dd/MM/yyyy HH:mm')} : ''"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

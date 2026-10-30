@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: xml-thaison
+  main:
+    banner-mode: off
+  datasource:
+    url: jdbc:postgresql://localhost:5432/thaison
+    username: postgres
+    password: ${DB_PASSWORD:postgres}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 50
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 200MB
+server:
+  address: 127.0.0.1
+  port: ${PORT:8080}
+  servlet:
+    session:
+      tracking-modes: cookie
+logging:
+  level:
+    root: WARN
+    com.thaison: INFO
